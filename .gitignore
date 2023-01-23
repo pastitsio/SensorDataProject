@@ -1,0 +1,5 @@
+# ignore all . folders but include . files
+.*/
+kafka_consumer/java/KafkaMultitopicIO/out/*
+kafka_consumer/java/KafkaMultitopicIO/target/
+kafka_consumer/python/*

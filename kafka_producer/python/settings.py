@@ -1,0 +1,6 @@
+import os
+
+DEFAULT_SENSORS_PRODUCER_PACKAGE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_SENSORS_PRODUCER_PACKAGE_PATH = os.path.abspath(os.path.join(DEFAULT_SENSORS_PRODUCER_PACKAGE))
+DEFAULT_CONFIG_DIR = os.path.join(DEFAULT_SENSORS_PRODUCER_PACKAGE_PATH, 'config')
+DEFAULT_CONFIG_FILEPATH = os.path.join(DEFAULT_CONFIG_DIR, 'default.yaml')

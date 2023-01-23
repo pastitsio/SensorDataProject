@@ -1,0 +1,16 @@
+# Kafka IO
+KAFKA_HOST: localhost
+KAFKA_CLIENT_PORT: 9092
+KAFKA_TOPICS: [thermo,hvac,electrical,motion,water,total]
+KAFKA_PARTITIONS: 1
+
+# Zookeeper
+# ZK_HOST: localhost
+# ZK_PORT: 8081
+
+logger_name: iot_sensors_logger
+
+# simulation parameters
+base_interval_mins: 30
+msgs_per_sec: 16
+

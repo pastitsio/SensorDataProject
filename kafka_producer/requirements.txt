@@ -1,0 +1,4 @@
+confuse==2.0.0
+kafka==1.3.5
+kafka_python==2.0.2
+numpy==1.23.4
