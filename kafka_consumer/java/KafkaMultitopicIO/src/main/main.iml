@@ -7,7 +7,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="flink-sql-connector-kafka-1.16.0" level="project" />
     <orderEntry type="library" name="KafkaMultitopicIO" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-streaming-java:1.16.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flink:flink-java:1.16.0" level="project" />

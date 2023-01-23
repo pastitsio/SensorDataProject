@@ -70,12 +70,12 @@ public class KafkaMultiTopicIO {
                                 .fromSource(kafkaSource, watermarkStrategy, String.format("job-%s", topic));
 
                 sensorData
-                                .windowAll(TumblingEventTimeWindows.of(Time.days(1))) // sum 1 day
-                                .allowedLateness(Time.days(3)) 
-                                .sideOutputLateData(late10DaysTag) // side output data over 3 days late. just in case
-                                .sum("value")
-                                .map(s -> s.toString() + "   -> on-time data")
-                                .sinkTo(new PrintSink<>());
+                        .windowAll(TumblingEventTimeWindows.of(Time.days(1))) // sum 1 day
+                        .allowedLateness(Time.days(3)) 
+                        .sideOutputLateData(late10DaysTag) // side output data over 3 days late. just in case
+                        .sum("value")
+                        .map(s -> s.toString() + "   -> on-time data")
+                        .sinkTo(new PrintSink<>());
 
                 DataStream<SensorMessage> sideOutputStream = sensorData.getSideOutput(late10DaysTag);
                 sideOutputStream

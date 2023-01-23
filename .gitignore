@@ -1,9 +1,9 @@
 # ignore all . folders but include . files
 .*/
+
 kafka_consumer/java/KafkaMultitopicIO/out
 kafka_consumer/java/KafkaMultitopicIO/target
 kafka_consumer/java/KafkaMultitopicIO/lib
 kafka_consumer/python
 
-**/__pycache__/
-SensorDataProject.jar
+__pycache__/
