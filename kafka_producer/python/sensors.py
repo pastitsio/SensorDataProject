@@ -7,43 +7,46 @@ from kafka import KafkaProducer
 from threading import Event, Thread
 
 from config_setup import config
+from termcolor import colored
 from utils.helpers import _BASE_INTERVAL_MINS, get_time_now, pairwise, sleep
 from utils.logger import get_project_logger
 
-np.random.seed(5)
+# np.random.seed(5)
 
 logger = get_project_logger()
 
 
 class Producer(ABC, Thread):
-    def __init__(self, interval_in_mins, k_topic):
+    def __init__(self, interval_in_mins):
         super().__init__(daemon=True)
         self._stop_event = Event()
         self._producer = None
         self._interval_in_mins = interval_in_mins
-        self._k_topic = k_topic
+        self._k_topic = f'sensors.{type(self).__name__[:-len("Sensor")].lower()}' # NameSensor
 
     def stop(self):
-
         self._stop_event.set()
 
     def run(self):
         k_host = config['KAFKA_HOST'].get(str)
         k_port = config['KAFKA_CLIENT_PORT'].get(int)
 
-        self._producer = KafkaProducer(bootstrap_servers=[f'{k_host}:{k_port}'],
-                                       value_serializer=lambda x: bytes(
+        logger.info(f"\n\t{colored('KAFKA Connection', 'green')}: {k_host}:{k_port}\t {colored('KAFKA topic', 'green')}: {self._k_topic}\n")
+
+        if ('-k' in sys.argv):
+            self._producer = KafkaProducer(bootstrap_servers=[f'{k_host}:{k_port}'],
+                                           value_serializer=lambda x: bytes(
                                            str(x), 'utf-8')
-                                       )
-        logger.info(30*'*' + '\n')
-        logger.info(f" Sending to {k_host}:{k_port} on topic: {self._k_topic}")
+                                           )
+
         while not self._stop_event.is_set():
             msg = self._generate_event()
             self._produce_msg(msg)
 
             sleep(self._interval_in_mins)
 
-        self._producer.close()
+        if ('-k' in sys.argv):
+            self._producer.close()
 
     @abstractmethod
     def _generate_event(self):
@@ -58,7 +61,7 @@ class Producer(ABC, Thread):
 
         if ('-d' in sys.argv):
             print(msg)
-            
+
         if ('-k' in sys.argv):
             self._producer.send(topic=self._k_topic, value=msg)
 
@@ -74,17 +77,16 @@ class Sensor(Producer):
     """
     _start_time = get_time_now()
 
-    def __init__(self, name, interval_in_mins, data_range, unit, k_topic):
+    def __init__(self, name, interval_in_mins, data_range, unit):
         """_summary_
 
         Args:
-            name (_type_): name of sensor
-            interval_in_mins (_type_): interval for data generation
-            data_range (_type_): range for random data generation
-            unit (_type_): Unit of measure
-            k_topic (_type_): Kafka topic to write data
+            name: name of sensor
+            interval_in_mins: interval for data generation
+            data_range: range for random data generation
+            unit: Unit of measure
         """
-        super().__init__(interval_in_mins, k_topic)
+        super().__init__(interval_in_mins)
         self.name = name
         self._data_range = data_range
         self._last_timestamp = Sensor._start_time
@@ -105,7 +107,6 @@ class Sensor(Producer):
         """Get timestamp and advance."""
         timestamp = self._last_timestamp
         self._last_timestamp += timedelta(minutes=int(self._interval_in_mins))
-
         return timestamp
 
     def _generate_sensor_value(self):
@@ -115,9 +116,11 @@ class Sensor(Producer):
         return np.round(value, 4)
 
     def _minutes_to_midnight(self, from_time):
-        tomorrow_midnight = (from_time + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)  # get tomorrow midnight
-        
-        minutes_to_midnight = (tomorrow_midnight - from_time).seconds // 60 # sec to min
+        tomorrow_midnight = (from_time + timedelta(days=1)).replace(hour=0,
+                                                                    minute=0, second=0, microsecond=0)  # get tomorrow midnight
+
+        minutes_to_midnight = (tomorrow_midnight -
+                               from_time).seconds // 60  # sec to min
         if minutes_to_midnight == 0:
             minutes_to_midnight = 24*60
 
@@ -129,23 +132,23 @@ class Sensor(Producer):
 
 # Common Sensors
 class ThermoSensor(Sensor):
-    def __init__(self, name, data_range, interval_in_mins=_BASE_INTERVAL_MINS, k_topic=''):
-        super().__init__(name, interval_in_mins, data_range, 'Celsius', k_topic)
+    def __init__(self, name, data_range, interval_in_mins=_BASE_INTERVAL_MINS):
+        super().__init__(name, interval_in_mins, data_range, 'Celsius')
 
 
 class HVACSensor(Sensor):
-    def __init__(self, name, data_range, interval_in_mins=_BASE_INTERVAL_MINS, k_topic=''):
-        super().__init__(name, interval_in_mins, data_range, 'Wh', k_topic)
+    def __init__(self, name, data_range, interval_in_mins=_BASE_INTERVAL_MINS):
+        super().__init__(name, interval_in_mins, data_range, 'Wh')
 
 
-class ElectricalDeviceSensor(Sensor):
-    def __init__(self, name, data_range, interval_in_mins=_BASE_INTERVAL_MINS, k_topic=''):
-        super().__init__(name, interval_in_mins, data_range, 'Wh', k_topic)
+class ElectricalSensor(Sensor):
+    def __init__(self, name, data_range, interval_in_mins=_BASE_INTERVAL_MINS):
+        super().__init__(name, interval_in_mins, data_range, 'Wh')
 
 
 class MotionSensor(Sensor):
-    def __init__(self, name, k_topic):
-        super().__init__(name, 0, None, None, k_topic)
+    def __init__(self, name):
+        super().__init__(name, 0, None, None)
         self._event_counter = 0
         self._random_event_time = []
 
@@ -191,20 +194,20 @@ class MotionSensor(Sensor):
         return 1
 
 
-class WaterConsumptionSensor(Sensor):
-    def __init__(self, name, data_range, async_days=[-2, -10], interval_in_mins=_BASE_INTERVAL_MINS, k_topic=''):
-        super().__init__(name, interval_in_mins, data_range, 'lt', k_topic=k_topic)
+class WaterSensor(Sensor):
+    def __init__(self, name, data_range, async_days=[-2, -10], interval_in_mins=_BASE_INTERVAL_MINS):
+        super().__init__(name, interval_in_mins, data_range, 'lt')
         self._async_every_n_days = dict(zip(async_days, [0]*len(async_days)))
 
     def _generate_event(self):
         """Water Sensors produce also async.
         Object keeps a dict, i.e. {-2:0, -10:0}, with keys the async days.
-        AT every function call, it increases the counter of each key and when the time 
+        At every function call, it increases the counter of each key and when the time 
         comes, it produces async.
         Example:
             at -2 days async, the value of dict[-2] will
             be (24*60)*abs(-2)/simtime.
-            
+
             For (15 minutes simtime) per (1 sec runtime),
             we get an async message every 2*96 seconds.
 
@@ -213,7 +216,7 @@ class WaterConsumptionSensor(Sensor):
             self._async_every_n_days[day] += 1  # +1 each entry
 
         for async_day in self._async_every_n_days.keys():
-            if self._async_every_n_days[async_day] == np.abs(async_day)*(24*60)/_BASE_INTERVAL_MINS:
+            if self._async_every_n_days[async_day] == np.abs(async_day)*(24*60)/_BASE_INTERVAL_MINS + 1:
                 self._async_every_n_days[async_day] = 0
                 self._generate_async_event(days=async_day)
 
@@ -222,7 +225,7 @@ class WaterConsumptionSensor(Sensor):
     def _generate_async_event(self, days):
         value = self._generate_sensor_value()
 
-        # if timestamp is at :30, generate at :15, not to conflict with older.
+        # if timestamp is at :00, generate at :15, not to conflict with older.
         timestamp = self._last_timestamp + \
             timedelta(days=days, minutes=-_BASE_INTERVAL_MINS//2)
         timestamp = timestamp.strftime('%Y-%m-%d %H:%M')
@@ -233,35 +236,40 @@ class WaterConsumptionSensor(Sensor):
 
 # Total Sensors
 class TotalSensor(Sensor):
-    def __init__(self, name, daily_increment, daily_error, unit, k_topic):
-        super().__init__(name, interval_in_mins=24*60,
-                         data_range=None, unit=unit, k_topic=k_topic)
+    def __init__(self, name, daily_increment, daily_error, unit):
+        super().__init__(name, interval_in_mins=24*60, data_range=None, unit=unit)
         self._daily_increment = daily_increment
         self._daily_error = daily_error
         self._last_value = 0
 
     def _generate_event(self):
-        if self._last_value == 0: # first run, sleep to midnight
+        if self._last_value == 0:  # first run, sleep to midnight
             mtm = self._minutes_to_midnight(self._last_timestamp)
-            self._last_timestamp += timedelta(days=-1, minutes=mtm)
+            self._last_timestamp += timedelta(minutes=mtm)
             sleep(mtm)
+        
+        event = super()._generate_event()
+        sleep(_BASE_INTERVAL_MINS)
+        return event
+        
 
-        return super()._generate_event()
 
     def _generate_sensor_value(self):
-        sign = 1 if np.random.uniform() < .5 else -1 # random sign for increment
+        sign = 1 if np.random.uniform() < .5 else -1  # random sign for increment
         value = self._last_value + self._daily_increment + sign * \
             np.random.randint(self._daily_error)
 
         self._last_value = value
-        return np.random(value, 4)
+        return np.round(value, 4)
 
 
 class TotalEnergySensor(TotalSensor):
-    def __init__(self, name, k_topic):
-        super().__init__(name, daily_increment=2600*24, daily_error=1000, unit='Wh', k_topic=k_topic)
+    def __init__(self, name):
+        super().__init__(name, daily_increment=2600*24,
+                         daily_error=1000, unit='Wh')
 
 
-class TotalWaterConsumptionSensor(TotalSensor):
-    def __init__(self, name, k_topic):
-        super().__init__(name, daily_increment=110, daily_error=10, unit='lt', k_topic=k_topic)
+class TotalWaterSensor(TotalSensor):
+    def __init__(self, name):
+        super().__init__(name, daily_increment=110,
+                         daily_error=10, unit='lt')

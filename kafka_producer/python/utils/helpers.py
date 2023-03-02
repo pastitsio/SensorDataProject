@@ -1,6 +1,7 @@
 import time
 from config_setup import config
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from pytz import timezone
 
 
 def get_time_now():

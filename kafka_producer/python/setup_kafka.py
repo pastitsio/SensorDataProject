@@ -6,7 +6,7 @@ KAFKA_HOME = '/opt/kafka'
 topics = config['KAFKA_TOPICS'].get(list)
 
 kafka_host = config['KAFKA_HOST'].get(str)
-kafka_port = config['KAFKA_CLIENT_PORT'].get(str)
+kafka_port = config['KAFKA_CLIENT_PORT'].get(int)
 kafka_partitions = config['KAFKA_PARTITIONS'].get(int)
 bootstrap_server = f'{kafka_host}:{kafka_port}'
 

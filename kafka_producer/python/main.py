@@ -12,8 +12,9 @@ logger = get_project_logger()
 # parser.add_argument('--kafka', type=str, help='Send messages to kafka broker.')
 
 def main():
-    logger.info('*'*50)
+    logger.info('*'*35)
     data_gen.run()
+    logger.info('*'*33)
 
 
 if __name__ == '__main__':
