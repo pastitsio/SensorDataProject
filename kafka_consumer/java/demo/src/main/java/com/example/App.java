@@ -243,7 +243,7 @@ public class App {
         thermoStream
                 .filter(s -> s.name.equals("TH1"))
                 .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
-                .sum("value")
+                .aggregate(new Aggregators.AverageAggregate())
                 .map(SensorData::WithTimestampEndOfDay)
                 .addSink(sinkTH1);
 
@@ -251,7 +251,7 @@ public class App {
         thermoStream
                 .filter(s -> s.name.equals("TH2"))
                 .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
-                .sum("value")
+                .aggregate(new Aggregators.AverageAggregate())
                 .map(SensorData::WithTimestampEndOfDay)
                 .addSink(sinkTH2);
 
