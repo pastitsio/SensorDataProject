@@ -12,4 +12,4 @@ For debugging purposes, we can run [Data Gen](../kafka_producer/python.main.py) 
 - `-k`: produces to Kafka. **MANDATORY FOR KAFKA**.
 - `-d`: prints generated messages on stdout.
 
-In file [data_gen.py](../kafka_producer/python/data_gen.py) we can modify the array `sensor_threads` to select which sensors produce messages.
+In file [data_gen.py](../kafka_producer/python/data_gen.py#34) we can modify the array `sensor_threads` to select which sensors produce messages.
