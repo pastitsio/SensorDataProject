@@ -33,11 +33,11 @@ for sink in sinks:
         ts_path = separator.join([group_processed, sink, sink_name, 'value'])
         session.create_time_series(ts_path, data_type, encoding, compressor,
         props=None, tags=None, attributes=None, alias=None)
-        
+    # raw    
     raw = config.get(f'iotdb.sinks.raw.{sink}.name').data.split(',')
     for sink_name in raw:
         ts_path = separator.join([group_raw, sink, sink_name, 'value'])
         session.create_time_series(ts_path, data_type, encoding, compressor,
         props=None, tags=None, attributes=None, alias=None)
 
-# session.close()
+session.close()
