@@ -1,4 +1,6 @@
 # SensorDataProject
+Ανάλυση και Σχεδιασμός Πληροφοριακών Συστημάτων(https://www.ece.ntua.gr/gr/undergraduate/courses/3321)
+---
 ## Project setup
 1. Run [Kafka setup](kafka_producer/python/setup_kafka.py)
 2. Run [IoTDB setup](kafka_consumer/iotdb_setup.py)
