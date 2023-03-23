@@ -1,5 +1,5 @@
 # SensorDataProject
-### [Analysis and Design of Information Systems](https://www.ece.ntua.gr/gr/undergraduate/courses/3321)
+[Analysis and Design of Information Systems](https://www.ece.ntua.gr/gr/undergraduate/courses/3321)
 ---
 ## Project setup
 1. Run [Kafka setup](kafka_producer/python/setup_kafka.py)
