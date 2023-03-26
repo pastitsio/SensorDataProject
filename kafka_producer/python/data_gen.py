@@ -18,14 +18,14 @@ def run():
     print('Press ^C to end run!\n')
     # Sensors
     sensor_threads = [
-        #HVACSensor(name='HVAC1', data_range=(0, 100)),
-        #HVACSensor(name='HVAC2', data_range=(0, 200)),
-        # ElectricalSensor(name='MiAC1', data_range=(0, 150)),
-        # ElectricalSensor(name='MiAC2', data_range=(0, 200)),
-        # TotalEnergySensor(name='Etot'),
-        # ThermoSensor(name='TH1', data_range=(12, 35)),
-        # ThermoSensor(name='TH2', data_range=(12, 35)),
-        # MotionSensor(name='Mov1'),
+        HVACSensor(name='HVAC1', data_range=(0, 100)),
+        HVACSensor(name='HVAC2', data_range=(0, 200)),
+        ElectricalSensor(name='MiAC1', data_range=(0, 150)),
+        ElectricalSensor(name='MiAC2', data_range=(0, 200)),
+        TotalEnergySensor(name='Etot'),
+        ThermoSensor(name='TH1', data_range=(12, 35)),
+        ThermoSensor(name='TH2', data_range=(12, 35)),
+        MotionSensor(name='Mov1'),
         WaterSensor(name='W1', data_range=(0, 1), async_days=[-2, -10]),
         TotalWaterSensor(name='Wtot'),
         ]
